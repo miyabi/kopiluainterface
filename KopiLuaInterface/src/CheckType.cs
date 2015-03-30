@@ -64,7 +64,7 @@ namespace LuaInterface
                 return extractNetObject;
         }
 
-        internal ExtractValue checkType(KopiLua.Lua.lua_State luaState, int stackPos, Type paramType)
+        internal ExtractValue checkType(KopiLua.LuaState luaState, int stackPos, Type paramType)
         {
             LuaTypes luatype = LuaDLL.lua_type(luaState, stackPos);
 
@@ -170,101 +170,101 @@ namespace LuaInterface
          * index stackPos as the desired type if it can, or null
          * otherwise.
          */
-        private object getAsSbyte(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsSbyte(KopiLua.LuaState luaState, int stackPos)
         {
             sbyte retVal=(sbyte)LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsByte(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsByte(KopiLua.LuaState luaState, int stackPos)
         {
             byte retVal=(byte)LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsShort(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsShort(KopiLua.LuaState luaState, int stackPos)
         {
             short retVal=(short)LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsUshort(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsUshort(KopiLua.LuaState luaState, int stackPos)
         {
             ushort retVal=(ushort)LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsInt(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsInt(KopiLua.LuaState luaState, int stackPos)
         {
             int retVal=(int)LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsUint(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsUint(KopiLua.LuaState luaState, int stackPos)
         {
             uint retVal=(uint)LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsLong(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsLong(KopiLua.LuaState luaState, int stackPos)
         {
             long retVal=(long)LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsUlong(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsUlong(KopiLua.LuaState luaState, int stackPos)
         {
             ulong retVal=(ulong)LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsDouble(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsDouble(KopiLua.LuaState luaState, int stackPos)
         {
             double retVal=LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsChar(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsChar(KopiLua.LuaState luaState, int stackPos)
         {
             char retVal=(char)LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsFloat(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsFloat(KopiLua.LuaState luaState, int stackPos)
         {
             float retVal=(float)LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsDecimal(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsDecimal(KopiLua.LuaState luaState, int stackPos)
         {
             decimal retVal=(decimal)LuaDLL.lua_tonumber(luaState,stackPos);
             if(retVal==0 && !LuaDLL.lua_isnumber(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsBoolean(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsBoolean(KopiLua.LuaState luaState, int stackPos)
         {
             return LuaDLL.lua_toboolean(luaState,stackPos);
         }
-        private object getAsString(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsString(KopiLua.LuaState luaState, int stackPos)
         {
             string retVal=LuaDLL.lua_tostring(luaState,stackPos);
             if(retVal=="" && !LuaDLL.lua_isstring(luaState,stackPos)) return null;
             return retVal;
         }
-        private object getAsTable(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsTable(KopiLua.LuaState luaState, int stackPos)
         {
             return translator.getTable(luaState,stackPos);
         }
-        private object getAsFunction(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsFunction(KopiLua.LuaState luaState, int stackPos)
         {
             return translator.getFunction(luaState,stackPos);
         }
-        private object getAsUserdata(KopiLua.Lua.lua_State luaState, int stackPos)
+        private object getAsUserdata(KopiLua.LuaState luaState, int stackPos)
         {
             return translator.getUserData(luaState,stackPos);
         }
-        public object getAsObject(KopiLua.Lua.lua_State luaState, int stackPos)
+        public object getAsObject(KopiLua.LuaState luaState, int stackPos)
         {
             if(LuaDLL.lua_type(luaState,stackPos)==LuaTypes.LUA_TTABLE)
             {
@@ -284,7 +284,7 @@ namespace LuaInterface
             object obj=translator.getObject(luaState,stackPos);
             return obj;
         }
-        public object getAsNetObject(KopiLua.Lua.lua_State luaState, int stackPos)
+        public object getAsNetObject(KopiLua.LuaState luaState, int stackPos)
         {
             object obj=translator.getNetObject(luaState,stackPos);
             if(obj==null && LuaDLL.lua_type(luaState,stackPos)==LuaTypes.LUA_TTABLE)

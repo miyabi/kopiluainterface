@@ -64,11 +64,11 @@ namespace LuaInterface
         -- Preload the mscorlib assembly
         luanet.load_assembly('mscorlib')";
 
-        /*readonly */ public KopiLua.Lua.lua_State luaState;
+        /*readonly */ public KopiLua.LuaState luaState;
         ObjectTranslator translator;
 
-        KopiLua.Lua.lua_CFunction panicCallback, lockCallback, unlockCallback;
-        KopiLua.Lua.lua_CFunction tracebackFunction;
+        KopiLua.LuaNativeFunction panicCallback, lockCallback, unlockCallback;
+        KopiLua.LuaNativeFunction tracebackFunction;
         // lockCallback, unlockCallback; used by debug code commented out for now
 
         public Lua()
@@ -91,10 +91,10 @@ namespace LuaInterface
             LuaDLL.lua_replace(luaState, (int)LuaIndexes.LUA_GLOBALSINDEX);
             LuaDLL.luaL_dostring(luaState, Lua.init_luanet);	// steffenj: lua_dostring renamed to luaL_dostring
 
-            tracebackFunction = new KopiLua.Lua.lua_CFunction(traceback);
+            tracebackFunction = new KopiLua.LuaNativeFunction(traceback);
 
             // We need to keep this in a managed reference so the delegate doesn't get garbage collected
-            panicCallback = new KopiLua.Lua.lua_CFunction(PanicCallback);
+            panicCallback = new KopiLua.LuaNativeFunction(PanicCallback);
             LuaDLL.lua_atpanic(luaState, panicCallback);
 
         }
@@ -104,7 +104,7 @@ namespace LuaInterface
         /*
          * CAUTION: LuaInterface.Lua instances can't share the same lua state!
          */
-        public Lua(KopiLua.Lua.lua_State lState)
+        public Lua(KopiLua.LuaState lState)
         {
             //IntPtr lState = new IntPtr(luaState);
             LuaDLL.lua_pushstring(lState, "LUAINTERFACE LOADED");
@@ -151,7 +151,7 @@ namespace LuaInterface
         /// </summary>
         /// <param name="luaState"></param>
         /// Not yet used
-        int LockCallback(KopiLua.Lua.lua_State luaState)
+        int LockCallback(KopiLua.LuaState luaState)
         {
             return 0;
         }
@@ -161,14 +161,14 @@ namespace LuaInterface
         /// </summary>
         /// <param name="luaState"></param>
         /// Not yet used
-        int UnlockCallback(KopiLua.Lua.lua_State luaState)
+        int UnlockCallback(KopiLua.LuaState luaState)
         {
             // Monitor.Exit(luaLock);
 
             return 0;
         }
 
-        static int PanicCallback(KopiLua.Lua.lua_State luaState)
+        static int PanicCallback(KopiLua.LuaState luaState)
         {
             // string desc = LuaDLL.lua_tostring(luaState, 1);
 
@@ -307,7 +307,7 @@ namespace LuaInterface
             return null;            // Never reached - keeps compiler happy
         }
 
-        private int traceback(KopiLua.Lua.lua_State luaState)
+        private int traceback(KopiLua.LuaState luaState)
         {
             LuaDLL.lua_getglobal(luaState,"debug");
             LuaDLL.lua_getfield(luaState,-1,"traceback");
@@ -418,7 +418,7 @@ namespace LuaInterface
         private void registerGlobal(string path, Type type, int recursionCounter)
         {
             // If the type is a global method, list it directly
-            if (type == typeof(KopiLua.Lua.lua_CFunction))
+            if (type == typeof(KopiLua.LuaNativeFunction))
             {
                 // Format for easy method invocation
                 globals.Add(path + "(");
@@ -539,7 +539,7 @@ namespace LuaInterface
         public LuaFunction GetFunction(string fullPath)
         {
             object obj=this[fullPath];
-            return (obj is KopiLua.Lua.lua_CFunction ? new LuaFunction((KopiLua.Lua.lua_CFunction)obj, this) : (LuaFunction)obj);
+            return (obj is KopiLua.LuaNativeFunction ? new LuaFunction((KopiLua.LuaNativeFunction)obj, this) : (LuaFunction)obj);
         }
         /*
          * Gets a function global variable as a delegate of
@@ -735,7 +735,7 @@ namespace LuaInterface
             int oldTop = LuaDLL.lua_gettop(luaState);
 
             LuaMethodWrapper wrapper=new LuaMethodWrapper(translator,target,function.DeclaringType,function);
-            translator.push(luaState, new KopiLua.Lua.lua_CFunction(wrapper.call));
+            translator.push(luaState, new KopiLua.LuaNativeFunction(wrapper.call));
 
             this[path]=translator.getObject(luaState,-1);
             LuaFunction f = GetFunction(path);
@@ -759,7 +759,7 @@ namespace LuaInterface
             return (equal!=0);
         }
 
-        internal void pushCSFunction(KopiLua.Lua.lua_CFunction function)
+        internal void pushCSFunction(KopiLua.LuaNativeFunction function)
         {
             translator.pushFunction(luaState,function);
         }

@@ -51,8 +51,8 @@
       <Project>{A9659B55-727E-454F-B32D-E6C337031939}</Project>
       <Name>KopiLuaDll</Name>
     </ProjectReference>
-    <ProjectReference Include="..\KopiLua\KopiLua.csproj">
-      <Project>{B754A868-A0FB-4270-B60D-E9CFF28ED540}</Project>
+    <ProjectReference Include="..\KopiLua\KopiLua\KopiLua.Net35.csproj">
+      <Project>{E8DDBC21-EF74-4ABA-9C49-BFC702BE25D8}</Project>
       <Name>KopiLua</Name>
     </ProjectReference>
   </ItemGroup>

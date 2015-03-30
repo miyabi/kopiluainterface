@@ -109,8 +109,8 @@ namespace LuaInterface
         {
             object obj = _Interpreter.rawGetObject(_Reference, field);
 
-            if (obj is KopiLua.Lua.lua_CFunction)
-                return new LuaFunction((KopiLua.Lua.lua_CFunction)obj, _Interpreter);
+            if (obj is KopiLua.LuaNativeFunction)
+                return new LuaFunction((KopiLua.LuaNativeFunction)obj, _Interpreter);
             else
                 return obj;
         }
@@ -118,7 +118,7 @@ namespace LuaInterface
         /*
          * Pushes this table into the Lua stack
          */
-        internal void push(KopiLua.Lua.lua_State luaState)
+        internal void push(KopiLua.LuaState luaState)
         {
             LuaDLL.lua_getref(luaState, _Reference);
         }

@@ -8,7 +8,7 @@ namespace LuaInterface
     public class LuaFunction : LuaBase
     {
         //private Lua interpreter;
-        internal KopiLua.Lua.lua_CFunction function;
+        internal KopiLua.LuaNativeFunction function;
         //internal int reference;
 
         public LuaFunction(int reference, Lua interpreter)
@@ -18,7 +18,7 @@ namespace LuaInterface
             _Interpreter = interpreter;
         }
 
-        public LuaFunction(KopiLua.Lua.lua_CFunction function, Lua interpreter)
+        public LuaFunction(KopiLua.LuaNativeFunction function, Lua interpreter)
         {
             _Reference = 0;
             this.function = function;
@@ -77,7 +77,7 @@ namespace LuaInterface
         /*
          * Pushes the function into the Lua stack
          */
-        internal void push(KopiLua.Lua.lua_State luaState)
+        internal void push(KopiLua.LuaState luaState)
         {
             if (_Reference != 0)
                 LuaDLL.lua_getref(luaState, _Reference);

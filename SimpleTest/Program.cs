@@ -49,8 +49,8 @@ namespace SimpleTest
             }
 
             {
-                KopiLua.Lua.lua_pushcfunction(lua.luaState, Func);
-                KopiLua.Lua.lua_setglobal(lua.luaState, "func");
+                KopiLua.Lua.LuaPushCFunction(lua.luaState, Func);
+                KopiLua.Lua.LuaSetGlobal(lua.luaState, "func");
                 Console.WriteLine("registered 'func'");
 
                 double result = (double)lua.DoString("return func(1,2,3)")[0];
@@ -88,10 +88,10 @@ namespace SimpleTest
             Console.ReadLine();
         }
 
-        static int Func(KopiLua.Lua.lua_State L)
+        static int Func(KopiLua.LuaState L)
         {
-            int n = KopiLua.Lua.lua_gettop(L);
-            KopiLua.Lua.lua_pushnumber(L, n * 2);
+            int n = KopiLua.Lua.LuaGetTop(L);
+            KopiLua.Lua.LuaPushNumber(L, n * 2);
             return 1;
         }
     }

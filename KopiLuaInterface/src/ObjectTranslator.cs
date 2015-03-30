@@ -24,27 +24,27 @@ namespace LuaInterface
         internal Lua interpreter;
         private MetaFunctions metaFunctions;
         private List<Assembly> assemblies;
-        private KopiLua.Lua.lua_CFunction registerTableFunction, unregisterTableFunction, getMethodSigFunction,
+        private KopiLua.LuaNativeFunction registerTableFunction, unregisterTableFunction, getMethodSigFunction,
             getConstructorSigFunction,importTypeFunction,loadAssemblyFunction, ctypeFunction, enumFromIntFunction;
 
         internal EventHandlerContainer pendingEvents = new EventHandlerContainer();
 
-        public ObjectTranslator(Lua interpreter,KopiLua.Lua.lua_State luaState)
+        public ObjectTranslator(Lua interpreter,KopiLua.LuaState luaState)
         {
             this.interpreter=interpreter;
             typeChecker=new CheckType(this);
             metaFunctions=new MetaFunctions(this);
             assemblies=new List<Assembly>();
 
-            importTypeFunction = new KopiLua.Lua.lua_CFunction(this.importType);
-            loadAssemblyFunction = new KopiLua.Lua.lua_CFunction(this.loadAssembly);
-            registerTableFunction = new KopiLua.Lua.lua_CFunction(this.registerTable);
-            unregisterTableFunction = new KopiLua.Lua.lua_CFunction(this.unregisterTable);
-            getMethodSigFunction = new KopiLua.Lua.lua_CFunction(this.getMethodSignature);
-            getConstructorSigFunction = new KopiLua.Lua.lua_CFunction(this.getConstructorSignature);
+            importTypeFunction = new KopiLua.LuaNativeFunction(this.importType);
+            loadAssemblyFunction = new KopiLua.LuaNativeFunction(this.loadAssembly);
+            registerTableFunction = new KopiLua.LuaNativeFunction(this.registerTable);
+            unregisterTableFunction = new KopiLua.LuaNativeFunction(this.unregisterTable);
+            getMethodSigFunction = new KopiLua.LuaNativeFunction(this.getMethodSignature);
+            getConstructorSigFunction = new KopiLua.LuaNativeFunction(this.getConstructorSignature);
 
-            ctypeFunction = new KopiLua.Lua.lua_CFunction(this.ctype);
-            enumFromIntFunction = new KopiLua.Lua.lua_CFunction(this.enumFromInt);
+            ctypeFunction = new KopiLua.LuaNativeFunction(this.ctype);
+            enumFromIntFunction = new KopiLua.LuaNativeFunction(this.enumFromInt);
 
             createLuaObjectList(luaState);
             createIndexingMetaFunction(luaState);
@@ -57,7 +57,7 @@ namespace LuaInterface
         /*
          * Sets up the list of objects in the Lua side
          */
-        private void createLuaObjectList(KopiLua.Lua.lua_State luaState)
+        private void createLuaObjectList(KopiLua.LuaState luaState)
         {
             LuaDLL.lua_pushstring(luaState,"luaNet_objects");
             LuaDLL.lua_newtable(luaState);
@@ -72,7 +72,7 @@ namespace LuaInterface
          * Registers the indexing function of CLR objects
          * passed to Lua
          */
-        private void createIndexingMetaFunction(KopiLua.Lua.lua_State luaState)
+        private void createIndexingMetaFunction(KopiLua.LuaState luaState)
         {
             LuaDLL.lua_pushstring(luaState,"luaNet_indexfunction");
             LuaDLL.luaL_dostring(luaState,MetaFunctions.luaIndexFunction);	// steffenj: lua_dostring renamed to luaL_dostring
@@ -83,7 +83,7 @@ namespace LuaInterface
          * Creates the metatable for superclasses (the base
          * field of registered tables)
          */
-        private void createBaseClassMetatable(KopiLua.Lua.lua_State luaState)
+        private void createBaseClassMetatable(KopiLua.LuaState luaState)
         {
             LuaDLL.luaL_newmetatable(luaState,"luaNet_searchbase");
             LuaDLL.lua_pushstring(luaState,"__gc");
@@ -103,7 +103,7 @@ namespace LuaInterface
         /*
          * Creates the metatable for type references
          */
-        private void createClassMetatable(KopiLua.Lua.lua_State luaState)
+        private void createClassMetatable(KopiLua.LuaState luaState)
         {
             LuaDLL.luaL_newmetatable(luaState,"luaNet_class");
             LuaDLL.lua_pushstring(luaState,"__gc");
@@ -126,7 +126,7 @@ namespace LuaInterface
         /*
          * Registers the global functions used by LuaInterface
          */
-        private void setGlobalFunctions(KopiLua.Lua.lua_State luaState)
+        private void setGlobalFunctions(KopiLua.LuaState luaState)
         {
             LuaDLL.lua_pushstdcallcfunction(luaState,metaFunctions.indexFunction);
             LuaDLL.lua_setglobal(luaState,"get_object_member");
@@ -152,7 +152,7 @@ namespace LuaInterface
         /*
          * Creates the metatable for delegates
          */
-        private void createFunctionMetatable(KopiLua.Lua.lua_State luaState)
+        private void createFunctionMetatable(KopiLua.LuaState luaState)
         {
             LuaDLL.luaL_newmetatable(luaState,"luaNet_function");
             LuaDLL.lua_pushstring(luaState,"__gc");
@@ -166,7 +166,7 @@ namespace LuaInterface
         /*
          * Passes errors (argument e) to the Lua interpreter
          */
-        internal void throwError(KopiLua.Lua.lua_State luaState, object e)
+        internal void throwError(KopiLua.LuaState luaState, object e)
         {
             // If the argument is a mere string, we are free to add extra info to it (as opposed to some private C# exception object or somesuch, which we just pass up)
             if (e is string)
@@ -191,7 +191,7 @@ namespace LuaInterface
          * Implementation of load_assembly. Throws an error
          * if the assembly is not found.
          */
-        private int loadAssembly(KopiLua.Lua.lua_State luaState)
+        private int loadAssembly(KopiLua.LuaState luaState)
         {
             try
             {
@@ -251,7 +251,7 @@ namespace LuaInterface
          * Implementation of import_type. Returns nil if the
          * type is not found.
          */
-        private int importType(KopiLua.Lua.lua_State luaState)
+        private int importType(KopiLua.LuaState luaState)
         {
             string className=LuaDLL.lua_tostring(luaState,1);
             Type klass=FindType(className);
@@ -266,7 +266,7 @@ namespace LuaInterface
          * argument in the stack) as an object subclassing the
          * type passed as second argument in the stack.
          */
-        private int registerTable(KopiLua.Lua.lua_State luaState)
+        private int registerTable(KopiLua.LuaState luaState)
         {
             if(LuaDLL.lua_type(luaState,1)==LuaTypes.LUA_TTABLE)
             {
@@ -309,7 +309,7 @@ namespace LuaInterface
          * Implementation of free_object. Clears the metatable and the
          * base field, freeing the created object for garbage-collection
          */
-        private int unregisterTable(KopiLua.Lua.lua_State luaState)
+        private int unregisterTable(KopiLua.LuaState luaState)
         {
             try
             {
@@ -340,7 +340,7 @@ namespace LuaInterface
          * Implementation of get_method_bysig. Returns nil
          * if no matching method is not found.
          */
-        private int getMethodSignature(KopiLua.Lua.lua_State luaState)
+        private int getMethodSignature(KopiLua.LuaState luaState)
         {
             IReflect klass; object target;
             int udata=LuaDLL.luanet_checkudata(luaState,1,"luaNet_class");
@@ -374,7 +374,7 @@ namespace LuaInterface
                 //CP: Added ignore case
                 MethodInfo method=klass.GetMethod(methodName,BindingFlags.Public | BindingFlags.Static |
                     BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.IgnoreCase, null, signature, null);
-                				pushFunction(luaState,new KopiLua.Lua.lua_CFunction((new LuaMethodWrapper(this,target,klass,method)).call));
+                				pushFunction(luaState,new KopiLua.LuaNativeFunction((new LuaMethodWrapper(this,target,klass,method)).call));
 
             }
             catch(Exception e)
@@ -388,7 +388,7 @@ namespace LuaInterface
          * Implementation of get_constructor_bysig. Returns nil
          * if no matching constructor is found.
          */
-        private int getConstructorSignature(KopiLua.Lua.lua_State luaState)
+        private int getConstructorSignature(KopiLua.LuaState luaState)
         {
             IReflect klass=null;
             int udata=LuaDLL.luanet_checkudata(luaState,1,"luaNet_class");
@@ -411,7 +411,7 @@ namespace LuaInterface
             try
             {
                 ConstructorInfo constructor=klass.UnderlyingSystemType.GetConstructor(signature);
-                pushFunction(luaState, new KopiLua.Lua.lua_CFunction((new LuaMethodWrapper(this, null, klass, constructor)).call));
+                pushFunction(luaState, new KopiLua.LuaNativeFunction((new LuaMethodWrapper(this, null, klass, constructor)).call));
             }
             catch(Exception e)
             {
@@ -421,7 +421,7 @@ namespace LuaInterface
             return 1;
         }
 
-        private Type typeOf(KopiLua.Lua.lua_State luaState, int idx)
+        private Type typeOf(KopiLua.LuaState luaState, int idx)
         {
             int udata=LuaDLL.luanet_checkudata(luaState,1,"luaNet_class");
             if (udata == -1) {
@@ -432,14 +432,14 @@ namespace LuaInterface
             }
         }
 
-        public int pushError(KopiLua.Lua.lua_State luaState, string msg)
+        public int pushError(KopiLua.LuaState luaState, string msg)
         {
             LuaDLL.lua_pushnil(luaState);
             LuaDLL.lua_pushstring(luaState,msg);
             return 2;
         }
 
-        private int ctype(KopiLua.Lua.lua_State luaState)
+        private int ctype(KopiLua.LuaState luaState)
         {
             Type t = typeOf(luaState,1);
             if (t == null) {
@@ -449,7 +449,7 @@ namespace LuaInterface
             return 1;
         }
 
-        private int enumFromInt(KopiLua.Lua.lua_State luaState)
+        private int enumFromInt(KopiLua.LuaState luaState)
         {
             Type t = typeOf(luaState,1);
             if (t == null || ! t.IsEnum) {
@@ -482,14 +482,14 @@ namespace LuaInterface
         /*
          * Pushes a type reference into the stack
          */
-        internal void pushType(KopiLua.Lua.lua_State luaState, Type t)
+        internal void pushType(KopiLua.LuaState luaState, Type t)
         {
             pushObject(luaState,new ProxyType(t),"luaNet_class");
         }
         /*
          * Pushes a delegate into the stack
          */
-        internal void pushFunction(KopiLua.Lua.lua_State luaState, KopiLua.Lua.lua_CFunction func)
+        internal void pushFunction(KopiLua.LuaState luaState, KopiLua.LuaNativeFunction func)
         {
             pushObject(luaState,func,"luaNet_function");
         }
@@ -497,7 +497,7 @@ namespace LuaInterface
          * Pushes a CLR object into the Lua stack as an userdata
          * with the provided metatable
          */
-        internal void pushObject(KopiLua.Lua.lua_State luaState, object o, string metatable)
+        internal void pushObject(KopiLua.LuaState luaState, object o, string metatable)
         {
             int index = -1;
             // Pushes nil
@@ -543,7 +543,7 @@ namespace LuaInterface
          * Pushes a new object into the Lua stack with the provided
          * metatable
          */
-        private void pushNewObject(KopiLua.Lua.lua_State luaState, object o, int index, string metatable)
+        private void pushNewObject(KopiLua.LuaState luaState, object o, int index, string metatable)
         {
             if(metatable=="luaNet_metatable")
             {
@@ -595,7 +595,7 @@ namespace LuaInterface
          * Gets an object from the Lua stack with the desired type, if it matches, otherwise
          * returns null.
          */
-        internal object getAsType(KopiLua.Lua.lua_State luaState, int stackPos, Type paramType)
+        internal object getAsType(KopiLua.LuaState luaState, int stackPos, Type paramType)
         {
             ExtractValue extractor=typeChecker.checkType(luaState,stackPos,paramType);
             if(extractor!=null) return extractor(luaState,stackPos);
@@ -659,7 +659,7 @@ namespace LuaInterface
         /*
          * Gets an object from the Lua stack according to its Lua type.
          */
-        internal object getObject(KopiLua.Lua.lua_State luaState,int index)
+        internal object getObject(KopiLua.LuaState luaState,int index)
         {
             LuaTypes type=LuaDLL.lua_type(luaState,index);
             switch(type)
@@ -699,7 +699,7 @@ namespace LuaInterface
         /*
          * Gets the table in the index positon of the Lua stack.
          */
-        internal LuaTable getTable(KopiLua.Lua.lua_State luaState, int index)
+        internal LuaTable getTable(KopiLua.LuaState luaState, int index)
         {
             LuaDLL.lua_pushvalue(luaState,index);
             return new LuaTable(LuaDLL.lua_ref(luaState,1),interpreter);
@@ -707,7 +707,7 @@ namespace LuaInterface
         /*
          * Gets the userdata in the index positon of the Lua stack.
          */
-        internal LuaUserData getUserData(KopiLua.Lua.lua_State luaState, int index)
+        internal LuaUserData getUserData(KopiLua.LuaState luaState, int index)
         {
             LuaDLL.lua_pushvalue(luaState,index);
             return new LuaUserData(LuaDLL.lua_ref(luaState,1),interpreter);
@@ -715,7 +715,7 @@ namespace LuaInterface
         /*
          * Gets the function in the index positon of the Lua stack.
          */
-        internal LuaFunction getFunction(KopiLua.Lua.lua_State luaState, int index)
+        internal LuaFunction getFunction(KopiLua.LuaState luaState, int index)
         {
             LuaDLL.lua_pushvalue(luaState,index);
             return new LuaFunction(LuaDLL.lua_ref(luaState,1),interpreter);
@@ -724,7 +724,7 @@ namespace LuaInterface
          * Gets the CLR object in the index positon of the Lua stack. Returns
          * delegates as Lua functions.
          */
-        internal object getNetObject(KopiLua.Lua.lua_State luaState, int index)
+        internal object getNetObject(KopiLua.LuaState luaState, int index)
         {
             int idx=LuaDLL.luanet_tonetobject(luaState,index);
             if(idx!=-1)
@@ -736,7 +736,7 @@ namespace LuaInterface
          * Gets the CLR object in the index positon of the Lua stack. Returns
          * delegates as is.
          */
-        internal object getRawNetObject(KopiLua.Lua.lua_State luaState, int index)
+        internal object getRawNetObject(KopiLua.LuaState luaState, int index)
         {
             int udata=LuaDLL.luanet_rawnetobj(luaState,index);
             if(udata!=-1)
@@ -749,7 +749,7 @@ namespace LuaInterface
          * Pushes the entire array into the Lua stack and returns the number
          * of elements pushed.
          */
-        internal int returnValues(KopiLua.Lua.lua_State luaState, object[] returnValues)
+        internal int returnValues(KopiLua.LuaState luaState, object[] returnValues)
         {
             if(LuaDLL.lua_checkstack(luaState,returnValues.Length+5))
             {
@@ -765,7 +765,7 @@ namespace LuaInterface
          * Gets the values from the provided index to
          * the top of the stack and returns them in an array.
          */
-        internal object[] popValues(KopiLua.Lua.lua_State luaState, int oldTop)
+        internal object[] popValues(KopiLua.LuaState luaState, int oldTop)
         {
             int newTop=LuaDLL.lua_gettop(luaState);
             if(oldTop==newTop)
@@ -788,7 +788,7 @@ namespace LuaInterface
          * the top of the stack and returns them in an array, casting
          * them to the provided types.
          */
-        internal object[] popValues(KopiLua.Lua.lua_State luaState, int oldTop, Type[] popTypes)
+        internal object[] popValues(KopiLua.LuaState luaState, int oldTop, Type[] popTypes)
         {
             int newTop=LuaDLL.lua_gettop(luaState);
             if(oldTop==newTop)
@@ -831,7 +831,7 @@ namespace LuaInterface
         /*
          * Pushes the object into the Lua stack according to its type.
          */
-        internal void push(KopiLua.Lua.lua_State luaState, object o)
+        internal void push(KopiLua.LuaState luaState, object o)
         {
             if(o==null)
             {
@@ -867,9 +867,9 @@ namespace LuaInterface
             {
                 ((LuaTable)o).push(luaState);
             }
-            else if (o is KopiLua.Lua.lua_CFunction)
+            else if (o is KopiLua.LuaNativeFunction)
             {
-                pushFunction(luaState, (KopiLua.Lua.lua_CFunction)o);
+                pushFunction(luaState, (KopiLua.LuaNativeFunction)o);
             }
             else if(o is LuaFunction)
             {
@@ -884,7 +884,7 @@ namespace LuaInterface
          * Checks if the method matches the arguments in the Lua stack, getting
          * the arguments if it does.
          */
-        internal bool matchParameters(KopiLua.Lua.lua_State luaState, MethodBase method, ref MethodCache methodCache)
+        internal bool matchParameters(KopiLua.LuaState luaState, MethodBase method, ref MethodCache methodCache)
         {
             return metaFunctions.matchParameters(luaState,method,ref methodCache);
         }

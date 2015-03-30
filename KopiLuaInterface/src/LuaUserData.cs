@@ -58,7 +58,7 @@ namespace LuaInterface
         /*
          * Pushes the userdata into the Lua stack
          */
-        internal void push(KopiLua.Lua.lua_State luaState)
+        internal void push(KopiLua.LuaState luaState)
         {
             LuaDLL.lua_getref(luaState, _Reference);
         }

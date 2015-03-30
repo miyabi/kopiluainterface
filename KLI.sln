@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C# Express 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KopiLua", "KopiLua\KopiLua.csproj", "{E8DDBC21-EF74-4ABA-9C49-BFC702BE25D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KopiLua", "KopiLua\KopiLua\KopiLua.Net35.csproj", "{E8DDBC21-EF74-4ABA-9C49-BFC702BE25D8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KopiLuaDll", "KopiLuaDll\KopiLuaDll.csproj", "{A9659B55-727E-454F-B32D-E6C337031939}"
 EndProject

@@ -61,7 +61,7 @@ namespace LuaInterface
     /*
      * Argument extraction with type-conversion function
      */
-    delegate object ExtractValue(KopiLua.Lua.lua_State luaState, int stackPos);
+    delegate object ExtractValue(KopiLua.LuaState luaState, int stackPos);
 
     /*
      * Wrapper class for methods/constructors accessed from Lua.
@@ -137,7 +137,7 @@ namespace LuaInterface
          * Calls the method. Receives the arguments from the Lua stack
          * and returns values in it.
          */
-        public int call(KopiLua.Lua.lua_State luaState)
+        public int call(KopiLua.LuaState luaState)
         {
             MethodBase methodToCall = _Method;
             object targetObject = _Target;
